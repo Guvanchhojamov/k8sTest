@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-web-to-nginx
+  labels:
+    app: k8s-web-to-nginx
+spec:               #deployment specifications
+  replicas: 5
+  selector:
+    matchLabels:
+      app: k8s-web-to-nginx
+  template:
+    metadata:
+      name: k8s-web-to-nginx
+      labels:
+        app: k8s-web-to-nginx
+    spec:           #pod specifications
+      containers:
+        - name: k8s-web-to-nginx
+          image: guwanchh/k8s-web-to-nginx:v1.0.3
+          imagePullPolicy: IfNotPresent
+          resources: # optional
+            limits:
+              memory: "125Mi"
+              cpu: "250m"
+          ports:
+            - containerPort: 3333
+              protocol: TCP
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: k8s-web-to-nginx-svc
+spec:
+  selector:
+    app: k8s-web-to-nginx
+  ports:
+    - protocol: TCP
+      port: 3003
+      targetPort: 3333
+  type: LoadBalancer
+
+
+      

@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-test
+  labels:
+    app: k8s-test
+spec:               #deployment specifications
+  replicas: 3
+  selector:
+    matchLabels:
+      app: k8s-test
+  template:
+    metadata:
+      name: k8s-test
+      labels:
+        app: k8s-test
+    spec:           #pod specifications
+      containers:
+        - name: k8s-test
+          image: guwanchh/k8s-test:v2.0.0
+          imagePullPolicy: IfNotPresent
+          resources: # optional
+            limits:
+              memory: "128Mi"
+              cpu: "250m"
+          ports:
+            - containerPort: 5555
+              protocol: TCP
+      restartPolicy: Always
+      

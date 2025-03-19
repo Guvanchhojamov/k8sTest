@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: k8s-test-svc
+spec:
+  selector:
+    app: k8s-test
+  ports:
+    - protocol: TCP
+      port: 5556
+      targetPort: 5555
+  type: LoadBalancer
+  
