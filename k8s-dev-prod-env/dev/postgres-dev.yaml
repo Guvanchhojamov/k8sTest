@@ -1,0 +1,66 @@
+#try storage for prod
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-dev-pvc
+  namespace: dev
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: standard  # adjust based on your storage class (or remove for default)
+
+# end storage
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-dev
+  namespace: dev
+spec:
+  selector:
+    app: postgres-dev
+  ports:
+    - port: 6432       # exposed to others
+      targetPort: 5432 # internal port
+      protocol: TCP
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-dev
+  namespace: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-dev
+  template:
+    metadata:
+      namespace: dev
+      labels:
+        app: postgres-dev
+    spec:
+      containers:
+        - name: postgres-dev
+          image: postgres:14-alpine
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: db_dev
+            - name: POSTGRES_USER
+              value: db_user
+            - name: POSTGRES_PASSWORD
+              value: db_password
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: service-db-storage
+      volumes:
+          - name: service-db-storage
+            persistentVolumeClaim:
+              claimName: postgres-dev-pvc
